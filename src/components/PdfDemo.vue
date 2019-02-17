@@ -27,6 +27,9 @@ export default {
       scale: 1.5
     };
   },
+  watch:{
+    TestProps:function(nv,ov){console.log.apply(this,arguments)}
+  },
   methods: {
     LoadPDF: async function() {
       let that = this;
@@ -36,7 +39,6 @@ export default {
           console.log("Loaded Page");
           let viewport = page.getViewport(that.scale);
           let $canvas = jQuery(that.$refs["PDFLayer"]);
-          
           let canvas = $canvas.get(0);
           let context = canvas.getContext("2d");
           canvas.height = viewport.height;
