@@ -1,7 +1,5 @@
 <template>
-  <div id="app">
-    <PdfDemo relax="xxx"/>
-  </div>
+    <PdfDemo/>
 </template>
 
 <script>

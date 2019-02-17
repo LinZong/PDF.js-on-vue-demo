@@ -1,14 +1,12 @@
 <template>
-  <div>
-    <p>PDF.js Run with Vue.js</p>
     <div ref="pdfContainerRef" id="pdfContainer" class="pdf-content">
       <canvas ref="PDFLayer"/>
       <div class="textLayer" ref="textLayerRef"/>
     </div>
-  </div>
 </template>
 <script>
 import * as PDFJS from "pdfjs-dist";
+import jQuery from "jquery";
 import { pdfBase64 } from "./DemoPDFBase64.js";
 import {
   getOutputScale,
@@ -34,48 +32,52 @@ export default {
       PDFInstance.then(pdf => {
         pdf.getPage(1).then(page => {
           console.log("Loaded Page");
-          let viewport = page.getViewport(that.scale);
-          let canvas = that.$refs["PDFLayer"];
-          let context = canvas.getContext("2d");
+          var viewport = page.getViewport(that.scale);
+          var $canvas = jQuery(that.$refs["PDFLayer"]);
+          
+          var canvas = $canvas.get(0);
+          var context = canvas.getContext("2d");
           canvas.height = viewport.height;
           canvas.width = viewport.width;
 
-          that.$refs["pdfContainerRef"].style.height = canvas.height + "px";
-          that.$refs["pdfContainerRef"].style.width = canvas.width + "px";
+          //Append the canvas to the pdf container div
+          var $pdfContainer = jQuery(that.$refs["pdfContainerRef"]);
+          $pdfContainer
+            .css("height", canvas.height + "px")
+            .css("width", canvas.width + "px");
 
-          let HiDPIScale = getOutputScale();
-
-          if (HiDPIScale.scaled) {
+          //The following few lines of code set up scaling on the context if we are on a HiDPI display
+          var outputScale = getOutputScale();
+          if (outputScale.scaled) {
             var cssScale =
-              "scale(" + 1 / HiDPIScale.sx + ", " + 1 / HiDPIScale.sy + ")";
+              "scale(" + 1 / outputScale.sx + ", " + 1 / outputScale.sy + ")";
             CustomStyle.setProp("transform", canvas, cssScale);
             CustomStyle.setProp("transformOrigin", canvas, "0% 0%");
-            if (that.$refs["pdfContainerRef"]) {
-              CustomStyle.setProp(
-                "transform",
-                that.$refs["pdfContainerRef"],
-                cssScale
-              );
+
+            if ($textLayerDiv.get(0)) {
+              CustomStyle.setProp("transform", $textLayerDiv.get(0), cssScale);
               CustomStyle.setProp(
                 "transformOrigin",
-                that.$refs["pdfContainerRef"],
+                $textLayerDiv.get(0),
                 "0% 0%"
               );
             }
           }
 
-          context._scaleX = HiDPIScale.sx;
-          context._scaleY = HiDPIScale.sy;
-
-          if (HiDPIScale.scaled) {
-            context.scale(HiDPIScale.sx, HiDPIScale.sy);
+          context._scaleX = outputScale.sx;
+          context._scaleY = outputScale.sy;
+          if (outputScale.scaled) {
+            context.scale(outputScale.sx, outputScale.sy);
           }
 
-          let canvasOffset = GetCanvasOffset(canvas);
-          that.$refs["textLayerRef"].style.height = viewport.height + "px";
-          that.$refs["textLayerRef"].style.width = viewport.width + "px";
-          that.$refs["textLayerRef"].style.top = canvasOffset.top + "px";
-          that.$refs["textLayerRef"].style.left = canvasOffset.left + "px";
+          var canvasOffset = $canvas.offset();
+          var $textLayerDiv = jQuery(that.$refs["textLayerRef"])
+            .css("height", viewport.height + "px")
+            .css("width", viewport.width + "px")
+            .offset({
+              top: canvasOffset.top,
+              left: canvasOffset.left
+            });
 
           let renderContext = {
             canvasContext: context,
