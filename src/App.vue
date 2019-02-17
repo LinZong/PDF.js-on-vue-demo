@@ -9,7 +9,7 @@ export default {
   name: 'App',
   data(){
     return {
-      MyData:"Hello!Data"
+      MyData:"You can also pass PDF data here!"
     }
   },
   components: {
