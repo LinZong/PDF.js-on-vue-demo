@@ -17,8 +17,10 @@ import { TextLayerBuilder } from "pdfjs-dist/web/pdf_viewer";
 import "./PDFRenderer/RenderStyle.css";
 export default {
   name: "PdfDemo",
+  props:['TestProps'],
   mounted() {
     this.LoadPDF();
+    console.log(this.TestProps);
   },
   data() {
     return {
@@ -32,24 +34,24 @@ export default {
       PDFInstance.then(pdf => {
         pdf.getPage(1).then(page => {
           console.log("Loaded Page");
-          var viewport = page.getViewport(that.scale);
-          var $canvas = jQuery(that.$refs["PDFLayer"]);
+          let viewport = page.getViewport(that.scale);
+          let $canvas = jQuery(that.$refs["PDFLayer"]);
           
-          var canvas = $canvas.get(0);
-          var context = canvas.getContext("2d");
+          let canvas = $canvas.get(0);
+          let context = canvas.getContext("2d");
           canvas.height = viewport.height;
           canvas.width = viewport.width;
 
           //Append the canvas to the pdf container div
-          var $pdfContainer = jQuery(that.$refs["pdfContainerRef"]);
+          let $pdfContainer = jQuery(that.$refs["pdfContainerRef"]);
           $pdfContainer
             .css("height", canvas.height + "px")
             .css("width", canvas.width + "px");
 
           //The following few lines of code set up scaling on the context if we are on a HiDPI display
-          var outputScale = getOutputScale();
+          let outputScale = getOutputScale();
           if (outputScale.scaled) {
-            var cssScale =
+            let cssScale =
               "scale(" + 1 / outputScale.sx + ", " + 1 / outputScale.sy + ")";
             CustomStyle.setProp("transform", canvas, cssScale);
             CustomStyle.setProp("transformOrigin", canvas, "0% 0%");
@@ -70,8 +72,8 @@ export default {
             context.scale(outputScale.sx, outputScale.sy);
           }
 
-          var canvasOffset = $canvas.offset();
-          var $textLayerDiv = jQuery(that.$refs["textLayerRef"])
+          let canvasOffset = $canvas.offset();
+          let $textLayerDiv = jQuery(that.$refs["textLayerRef"])
             .css("height", viewport.height + "px")
             .css("width", viewport.width + "px")
             .offset({
@@ -87,7 +89,7 @@ export default {
             .render(renderContext)
             .then(() => page.getTextContent())
             .then(textContent => {
-              var textLayer = new TextLayerBuilder({
+              let textLayer = new TextLayerBuilder({
                 textLayerDiv: that.$refs["textLayerRef"],
                 pageIndex: page.pageIndex,
                 viewport: viewport
