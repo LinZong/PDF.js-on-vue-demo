@@ -43,46 +43,42 @@ export default {
           let context = canvas.getContext("2d");
           canvas.height = viewport.height;
           canvas.width = viewport.width;
-
+          let $textLayerDiv = jQuery(that.$refs["textLayerRef"]);
           //Append the canvas to the pdf container div
           let $pdfContainer = jQuery(that.$refs["pdfContainerRef"]);
           $pdfContainer
             .css("height", canvas.height + "px")
             .css("width", canvas.width + "px");
 
-          //The following few lines of code set up scaling on the context if we are on a HiDPI display
+
+            //高分屏适配
           let outputScale = getOutputScale();
           if (outputScale.scaled) {
             let cssScale =
               "scale(" + 1 / outputScale.sx + ", " + 1 / outputScale.sy + ")";
-            CustomStyle.setProp("transform", canvas, cssScale);
+              CustomStyle.setProp("transform", canvas, cssScale);
             CustomStyle.setProp("transformOrigin", canvas, "0% 0%");
-
             if ($textLayerDiv.get(0)) {
-              CustomStyle.setProp("transform", $textLayerDiv.get(0), cssScale);
               CustomStyle.setProp(
                 "transformOrigin",
                 $textLayerDiv.get(0),
                 "0% 0%"
               );
             }
-          }
-
-          context._scaleX = outputScale.sx;
-          context._scaleY = outputScale.sy;
-          if (outputScale.scaled) {
-            context.scale(outputScale.sx, outputScale.sy);
+            //重新放大 适配高分辨率
+            canvas.height = viewport.height * outputScale.sx;
+            canvas.width = viewport.width * outputScale.sy;
+            context.scale(outputScale.sx,outputScale.sy);
           }
 
           let canvasOffset = $canvas.offset();
-          let $textLayerDiv = jQuery(that.$refs["textLayerRef"])
+          $textLayerDiv
             .css("height", viewport.height + "px")
             .css("width", viewport.width + "px")
             .offset({
               top: canvasOffset.top,
               left: canvasOffset.left
             });
-
           let renderContext = {
             canvasContext: context,
             viewport: viewport
